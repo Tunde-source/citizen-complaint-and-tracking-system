@@ -1,74 +1,65 @@
 # citizen-complaint-and-tracking-system
-make complaint tracking easier
+make complaint tracking easier base.
 # Citizen Complaint and Tracking System
 
-A Python, object-oriented system that lets citizens file complaints with government
-bodies, receive a unique **reference number**, and track progress, while authorized
-officers **assign, investigate and resolve** each complaint.
+A simple Python program that lets citizens file complaints with government offices,
+get a **reference number**, and track what happened. Authorized officers can
+**assign, investigate and resolve** each complaint.
 
-## Features
+## Task 1 - OOP Basics
+The program has four classes relevant to the domain:
 
-- Unique reference numbers (e.g. `CMP-2026-000001`) for every complaint
-- Role-based authorization: **Supervisors** assign cases; **Investigators** work them
-- Enforced life cycle: `Submitted → Assigned → Under Investigation → Resolved → Closed`
-  (plus `Rejected`, and citizen **reopen** of a resolved case)
-- Full audit trail: every status change records who, when and why
-- Privacy: only the citizen who filed a complaint can track it
-- Department isolation: officers can only act on their own department's complaints
-- JSON persistence, an interactive CLI, a scripted demo, and unit tests
-- No third-party dependencies (Python 3.9+)
-
-## Project structure
-
-```
-complaint_system.py   # everything in one file: models, service layer, demo/CLI, unit tests
-README.md
-REPORT.md             # design and analysis report
-```
-
-## Running
-
-```bash
-python complaint_system.py demo   # scripted walkthrough of the full workflow
-python complaint_system.py cli    # interactive menu (data saved to data.json on exit)
-python complaint_system.py test   # run the 11 unit tests
-```
-
-Sample IDs loaded in the CLI: citizens `CIT-0001`, `CIT-0002`; officers `OFF-0001`
-(Water supervisor), `OFF-0002` (Water investigator), `OFF-0003` (Roads supervisor).
-Departments: `WATER`, `ROADS`.
-
-## Classes
-
-| Class | Responsibility |
+| Class | Purpose |
 |---|---|
-| `Citizen` | Registered member of the public; keeps references of their complaints |
-| `Officer` | Government employee with a department and a role (Supervisor / Investigator) |
-| `GovernmentDepartment` | Receives complaints, holds officers, reports workload |
-| `Complaint` | Reference number, status, assignee, resolution, audit history; enforces transitions and permissions |
-| `ComplaintSystem` | Facade: registers entities, generates references, persists data |
+| `Citizen` | A person who files and tracks complaints |
+| `Officer` | An authorized government staff member (Supervisor or Investigator) |
+| `Government Department` | A ministry, agency or council that receives complaints and has officers |
+| `Complaint` | One complaint: reference number, status, assigned officer, history |
 
-## Example
+## Privacy: no sensitive personal data
+The system stores **only**: a citizen ID (e.g. `C1`), a name (a nickname is fine),
+and the complaint title/description. It does **not** store national ID numbers, phone
+numbers, emails, addresses, passwords or financial data. Nothing is saved to a file or
+database; all data is kept in memory and is erased when the program closes. The program
+also reminds citizens not to type personal details into their complaint. All sample
+names are made up.
 
-```python
-# (inside complaint_system.py, or: from complaint_system import Complaint System, Role)
+## How to run
+Requires Python 3 only (no extra libraries).
 
-s = Complaint System()
-add_department("WATER", "Ministry of Water Resources")
-sup = add officer("WATER", "Amina", Role. SUPERVISOR)
-inv = .add officer("WATER", "Daniel")
-cit = register citizen("John Banda", "NID-1001")
-
-c = submit complaint(cit.citizen_id, "WATER", "No water", "None for 5 days")
-s.assign(c.reference, sup.officer_id, inv.officer_id)
-s.start_investigation(c.reference, inv.officer_id)
-s.resolve(c.reference, inv.officer_id, "Pipe repaired")
-print(s.track(c.reference, cit.citizen_id).status)   # Status.RESOLVED
 ```
+python complaint_basic.py
+```
+Then use the numbered menu. If you use an online compiler, type your menu answers in
+its "input" box, one per line.
 
-## Notes and limitations
+## Sample logins (built in)
+| ID | Who |
+|---|---|
+| `C1`, `C2` | Citizens (John, Mary) |
+| `O1` | Amina - Water supervisor |
+| `O2` | Daniel - Water investigator |
+| `O3` | Grace - Roads supervisor |
 
-- Officer "login" in the CLI is by ID only (no passwords); a real deployment needs authentication.
-- Storage is a single JSON file; a production system would use a database.
-- The brief lists an `Office` class; this project models the authorized staff as `Officer`
-  (and the organisational unit as `GovernmentDepartment`).
+Department codes: `WATER`, `ROADS`.
+
+## Example walkthrough
+1. Menu 1: citizen `C1` files a complaint to `WATER` and receives `CMP-0001`.
+2. Menu 4: officer `O1` (supervisor) chooses **b** and assigns `CMP-0001` to `O2`.
+3. Officer `O2` chooses **c** (start investigation), then **d** (resolve with a note).
+4. Menu 2: citizen `C1` tracks `CMP-0001` and sees the full history.
+5. Menu 3: citizen `C1` closes the resolved complaint.
+
+## Rules enforced
+- Every complaint gets a unique reference number (`CMP-0001`, `CMP-0002`, ...).
+- Only a **supervisor** can assign a complaint, and only within their own department.
+- Only the **assigned officer** can start investigation or resolve.
+- Only a supervisor or the assigned officer can reject.
+- Only the **citizen who filed** a complaint can track or close it.
+- Status order: Submitted -> Assigned -> Under Investigation -> Resolved -> Closed
+  (or Rejected). Steps cannot be skipped.
+
+## Limitations
+- No passwords: anyone who types an ID can act as that person (fine for a class demo).
+- Data is not saved between runs.
+- Citizens choose the department themselves.
